@@ -23,7 +23,7 @@
 
             if (imageUrl) {
                 const imgElement = document.getElementById('dynamic-image');
-                imgElement.src = imageUrl;
+                imgElement.src = "https://i.imgur.com/" + imageUrl + ".jpeg";
                 imgElement.alt = "Dynamically Loaded Image";
             } else {
                 document.getElementById('error-message').style.display = 'block';
