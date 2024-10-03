@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Image Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        #error-message {
+            color: red;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dynamic Image Display</h1>
+    <div id="image-container">
+        <img id="dynamic-image" alt="Image from URL">
+    </div>
+    <div id="error-message">No image parameter found in the URL!</div>
+
+    <script>
+        // Function to get URL parameters
+        function getQueryParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams;
+        }
+
+        // Function to display the image
+        function displayImage() {
+            const params = getQueryParams();
+            const imageUrl = params.get('image1');
+
+            if (imageUrl) {
+                const imgElement = document.getElementById('dynamic-image');
+                imgElement.src = imageUrl;
+                imgElement.alt = "Dynamically Loaded Image";
+            } else {
+                document.getElementById('error-message').style.display = 'block';
+            }
+        }
+
+        // Call the display function on page load
+        window.onload = displayImage;
+    </script>
+</body>
+</html>
