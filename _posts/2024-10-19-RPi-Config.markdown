@@ -1,7 +1,8 @@
 ---
-layout: page
-title: Raspberry Pi Config
-permalink: /RPi
+layout: post
+title:  "Raspberry Pi Config"
+date:   2024-10-19 18:00:47 +0100
+categories: raspberry-pi
 ---
 
 Storage page primarily. Will update shortly and include meanings.
