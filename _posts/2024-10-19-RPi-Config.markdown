@@ -20,12 +20,12 @@ Storage page primarily. Will update shortly and include meanings.
    11  sudo apt install samba samba-common-bin
    12  sudo nano /etc/samba/smb.conf
    13  sudo systemctl restart smbd
-   14  sudo adduser Jamie
+   14  sudo adduser usr
    15  sudo adduser pi-nas-user
    16  sudo smbpasswd -a username
-   17  sudo smbpasswd -a Jamie
+   17  sudo smbpasswd -a usr
    18  sudo apt install samba samba-common
-   19  sudo smbpasswd -a Jamie
+   19  sudo smbpasswd -a usr
    20  sudo chmod -R 775 /mnt/drv/shared
    21  sudo nano /etc/samba/smb.conf
    22  sudo systemctl restart smbd
@@ -45,20 +45,20 @@ Storage page primarily. Will update shortly and include meanings.
    36  mkdir /mnt/drv
    37  sudo mkdir /mnt/drv
    38  sudo mkdir /mnt/drv/shared
-   39  chown Jamie /mnt/drv
-   40  sudo chown Jamie /mnt/drv
-   41  sudo chown Jamie /mnt/drv/shared
+   39  chown usr /mnt/drv
+   40  sudo chown usr /mnt/drv
+   41  sudo chown usr /mnt/drv/shared
    42  sudo lsblk
    43  sudo nano /etc/samba/smb.conf
-   44  sudo smbpasswd -a Jamie
+   44  sudo smbpasswd -a usr
    45  sudo systemctl restart smbd
    46  hostname -I
-   47  sudo smbpasswd -a Holly
-   48  sudo adduser Holly
-   49  sudo adduser HollyS
-   50  sudo adduser Holly123
-   51  sudo adduser Holly --allow-bad-names
-   52  sudo smbpasswd -a Holly
+   47  sudo smbpasswd -a usr
+   48  sudo adduser usr
+   49  sudo adduser usr
+   50  sudo adduser usr
+   51  sudo adduser usr --allow-bad-names
+   52  sudo smbpasswd -a usr
    53  raspi-config
    54  sudo raspi-config
    55  hostname -I
@@ -68,7 +68,7 @@ Storage page primarily. Will update shortly and include meanings.
    59  sudo fdisk /dev/nvme0n1
    60  lsblk
    61  sudo mkdir /mnt/drv/nvme
-   62  sudo chown Jamie /mnt/drv/nvme
+   62  sudo chown usr /mnt/drv/nvme
    63  sudo mount /dev/nvme0n1p1 /mnt/drv/nvme
    64  sudo mount /dev/nvme0n1 /mnt/drv/nvme
    65  dmesg
@@ -92,11 +92,11 @@ Storage page primarily. Will update shortly and include meanings.
    83  sudo rmdir lost+found
    84  ls
    85  sudo apt list -u
-   86  sudo nmcli con add type wifi ifname wlan0 mode ap con-name accesspoint ssid "Pissbaby-WAPMAN" autoconnect true
-   87  sudo nmcli con modify accesspoint 802-11-wireless.band bg ipv4.method shared ipv4.address 192.168.6.1/24
+   86  sudo nmcli con add type wifi ifname wlan0 mode ap con-name accesspoint ssid "SSID" autoconnect true
+   87  sudo nmcli con modify accesspoint 802-11-wireless.band bg ipv4.method shared ipv4.address IPv4
    88  sudo nmcli con modify accesspoint ipv6.method disabled
    89  sudo nmcli con modify accesspoint wifi-sec.key-mgmt wpa-psk
-   90  sudo nmcli con modify accesspoint wifi-sec.psk "SweetPrincess"
+   90  sudo nmcli con modify accesspoint wifi-sec.psk "pass"
    91  sudo nmcli con up accesspoint
    92  sudo nmcli c
    93  sudo apt update
@@ -114,21 +114,21 @@ Storage page primarily. Will update shortly and include meanings.
   105  nmcli c delete accesspoint
   106  sudo nmcli c delete accesspoint
   107  nmcli c
-  108  nmcli c delete Pissbaby-WAPMAN
-  109  sudo nmcli c delete Pissbaby-WAPMAN
+  108  nmcli c delete ssid
+  109  sudo nmcli c delete ssid
   110  nmcli c
   111  nmcli d
   112  nmcli d wifi
   113  nmcli c
-  114  sudo nmcli con add type wifi ifname wlan0 mode ap con-name "WAPMAN" ssid "Pissbaby-WAPMAN" autoconnect true
+  114  sudo nmcli con add type wifi ifname wlan0 mode ap con-name accesspoint ssid "SSID" autoconnect true
   115  nmcli c
-  116  sudo nmcli modify WAPMAN 802-11-wireless.band bg ipv4.method shared
-  117  sudo nmcli con modify WAPMAN 802-11-wireless.band bg ipv4.method shared
-  118  sudo nmcli con modify WAPMAN ipv6.method disabled
-  119  sudo nmcli con modify WAPMAN wifi-sec.key-mgmt wpa-psk
-  120  sudo nmcli con modify WAPMAN wifi-sec.psk "SweetPrincess"
+  116  sudo nmcli modify ssid 802-11-wireless.band bg ipv4.method shared
+  117  sudo nmcli con modify ssid 802-11-wireless.band bg ipv4.method shared
+  118  sudo nmcli con modify ssid ipv6.method disabled
+  119  sudo nmcli con modify ssid wifi-sec.key-mgmt wpa-psk
+  120  sudo nmcli con modify ssid wifi-sec.psk "SweetPrincess"
   121  sudo nmcli con
-  122  sudo nmcli con up WAPMAN
+  122  sudo nmcli con up ssid
   123  turnoff
   124  poweroff
   125  sudo poweroff
@@ -163,15 +163,15 @@ Storage page primarily. Will update shortly and include meanings.
   154  cd ../
   155  sudo nano /etc/rc.local
   156  sudo reboot
-  157  ssh Jamie@192.168.0.91
+  157  ssh usr@192.168.0.91
   158  sudo nmcli
   159  sudo nmcli con
-  160  sudo nmcli con modify WAPMAN ssid "PiFi"
-  161  sudo nmcli con modify down WAPMAN
-  162  sudo nmcli con modify stop WAPMAN
-  163  sudo nmcli con down WAPMAN
-  164  sudo nmcli con up WAPMAN
-  165  sudo nmcli con modify WAPMAN 802-11-wireless.band a
-  166  sudo nmcli con down WAPMAN
-  167  sudo nmcli con up WAPMAN
+  160  sudo nmcli con modify APname ssid "ssid"
+  161  sudo nmcli con modify down APname
+  162  sudo nmcli con modify stop APname
+  163  sudo nmcli con down APname
+  164  sudo nmcli con up APname
+  165  sudo nmcli con modify APname 802-11-wireless.band a
+  166  sudo nmcli con down APname
+  167  sudo nmcli con up APname
   168  history
