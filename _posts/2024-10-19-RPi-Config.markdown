@@ -5,173 +5,91 @@ date:   2024-10-19 18:00:47 +0100
 categories: raspberry-pi
 ---
 
-Storage page primarily. Will update shortly and include meanings.
+This here is a list of some linux commands I've been running set set up a couple of the machines in my Raspberry Pi Cluster.
+These are mostly for personal reference, but may be helpful for anyone else managing Raspberry Pi Infrastrucutre.
 
-    1  lsblk
-    2  cd ../
-    3  mkdir ./mnt
-    4  cd mnt
-    5  ls
-    6  mkdir drv
-    7  sudo mkdir drv
-    8  sudo mount /dev/mmcblk0p2 /mnt/drv
-    9  sudo mkdir /mnt/drv/shared
-   10  sudo chmod -R 777 /mnt/drv/shared
-   11  sudo apt install samba samba-common-bin
-   12  sudo nano /etc/samba/smb.conf
-   13  sudo systemctl restart smbd
-   14  sudo adduser usr
-   15  sudo adduser pi-nas-user
-   16  sudo smbpasswd -a username
-   17  sudo smbpasswd -a usr
-   18  sudo apt install samba samba-common
-   19  sudo smbpasswd -a usr
-   20  sudo chmod -R 775 /mnt/drv/shared
-   21  sudo nano /etc/samba/smb.conf
-   22  sudo systemctl restart smbd
-   23  suda apt update
-   24  sudo apt update
-   25  sudo apt upgrade
-   26  sudo rmdir /mnt/drv
-   27  sudo systemctl down smbd
-   28  sudo systemctl stop smbd
-   29  sudo rmdir /mnt/drv
-   30  sudo rmdir /mnt/drv/shared
-   31  sudo rmdir /mnt
-   32  sudo rmdir /mnt/drv
-   33  sudo unmount /mnt/drv
-   34  sudo umount /mnt/drv
-   35  sudo rmdir /mnt/drv
-   36  mkdir /mnt/drv
-   37  sudo mkdir /mnt/drv
-   38  sudo mkdir /mnt/drv/shared
-   39  chown usr /mnt/drv
-   40  sudo chown usr /mnt/drv
-   41  sudo chown usr /mnt/drv/shared
-   42  sudo lsblk
-   43  sudo nano /etc/samba/smb.conf
-   44  sudo smbpasswd -a usr
-   45  sudo systemctl restart smbd
-   46  hostname -I
-   47  sudo smbpasswd -a usr
-   48  sudo adduser usr
-   49  sudo adduser usr
-   50  sudo adduser usr
-   51  sudo adduser usr --allow-bad-names
-   52  sudo smbpasswd -a usr
-   53  raspi-config
-   54  sudo raspi-config
-   55  hostname -I
-   56  lsblk
-   57  sudo lsblk -f
-   58  sudo fdisk /dev/nbme0n1
-   59  sudo fdisk /dev/nvme0n1
-   60  lsblk
-   61  sudo mkdir /mnt/drv/nvme
-   62  sudo chown usr /mnt/drv/nvme
-   63  sudo mount /dev/nvme0n1p1 /mnt/drv/nvme
-   64  sudo mount /dev/nvme0n1 /mnt/drv/nvme
-   65  dmesg
-   66  sudo mount /dev/nvme0n1 /mnt/drv/nvme
-   67  mkfs.ext4 /dev/nvme0n1p1
-   68  sudo mkfs.ext4 /dev/nvme0n1p1
-   69  sudo mount /dev/nvme0n1 /mnt/drv/nvme
-   70  sudo mount /dev/nvme0n1p1 /mnt/drv/nvme
-   71  sudo nano /etc/samba/smb.conf
-   72  sudo systemctl restart smbd
-   73  lsblk -f
-   74  sudo lsblk -f
-   75  ls
-   76  cd ../
-   77  cd mnt
-   78  cd drv
-   79  cd nvme
-   80  ls
-   81  cd lost+found
-   82  sudo cd lost+found
-   83  sudo rmdir lost+found
-   84  ls
-   85  sudo apt list -u
-   86  sudo nmcli con add type wifi ifname wlan0 mode ap con-name accesspoint ssid "SSID" autoconnect true
-   87  sudo nmcli con modify accesspoint 802-11-wireless.band bg ipv4.method shared ipv4.address IPv4
-   88  sudo nmcli con modify accesspoint ipv6.method disabled
-   89  sudo nmcli con modify accesspoint wifi-sec.key-mgmt wpa-psk
-   90  sudo nmcli con modify accesspoint wifi-sec.psk "pass"
-   91  sudo nmcli con up accesspoint
-   92  sudo nmcli c
-   93  sudo apt update
-   94  sudo apt list -u
-   95  sudo raspi-config
-   96  sudo nmcli con down accesspoint
-   97  sudo nmcli con up accesspoint
-   98  journalctl | grep wifi
-   99  journalctl | grep hotspot
-  100  journalctl | grep accesspoint
-  101  sudo nmtui
-  102  nmcli
-  103  nmcli d
-  104  nmcli c
-  105  nmcli c delete accesspoint
-  106  sudo nmcli c delete accesspoint
-  107  nmcli c
-  108  nmcli c delete ssid
-  109  sudo nmcli c delete ssid
-  110  nmcli c
-  111  nmcli d
-  112  nmcli d wifi
-  113  nmcli c
-  114  sudo nmcli con add type wifi ifname wlan0 mode ap con-name accesspoint ssid "SSID" autoconnect true
-  115  nmcli c
-  116  sudo nmcli modify ssid 802-11-wireless.band bg ipv4.method shared
-  117  sudo nmcli con modify ssid 802-11-wireless.band bg ipv4.method shared
-  118  sudo nmcli con modify ssid ipv6.method disabled
-  119  sudo nmcli con modify ssid wifi-sec.key-mgmt wpa-psk
-  120  sudo nmcli con modify ssid wifi-sec.psk "SweetPrincess"
-  121  sudo nmcli con
-  122  sudo nmcli con up ssid
-  123  turnoff
-  124  poweroff
-  125  sudo poweroff
-  126  raspi-config
-  127  sudo raspi-config
-  128  sudo lsblk
-  129  sudo nano /etc/samba/smb.conf
-  130  cd ../
-  131  cd etc
-  132  cd mnt
-  133  ls
-  134  cd ../
-  135  ls
-  136  cd mnt
-  137  ls
-  138  cd ../
-  139  sudo lsblk
-  140  cd nvme0n1
-  141  cd /dev/nvme0n1
-  142  cd mnt
-  143  ls
-  144  cd drv
-  145  ls
-  146  cd nvme
-  147  ls
-  148  lsblk
-  149  cd ../
-  150  findmnt
-  151  cat
-  152  mount
-  153  sudo mount /dev/nvme0n1p1 ./nvme
-  154  cd ../
-  155  sudo nano /etc/rc.local
-  156  sudo reboot
-  157  ssh usr@192.168.0.91
-  158  sudo nmcli
-  159  sudo nmcli con
-  160  sudo nmcli con modify APname ssid "ssid"
-  161  sudo nmcli con modify down APname
-  162  sudo nmcli con modify stop APname
-  163  sudo nmcli con down APname
-  164  sudo nmcli con up APname
-  165  sudo nmcli con modify APname 802-11-wireless.band a
-  166  sudo nmcli con down APname
-  167  sudo nmcli con up APname
-  168  history
+# Part 1 : Wireless Access Point
+
+We can create an access point using a Raspberry Pi. There are a couple of different reasons we might want this. The common reasons I see online for why you might want this include stuff like Hotel WiFi not letting you use multiple devices, but we're using it because we want to ensure a strong and stable WiFi connection in our media room.
+
+First, before doing anything, my RPi 4 needed some pre-work completed. This came in the form of some apt updates, and an update to the raspi-config.
+
+{% highlight %}
+sudo apt update
+sudo apt upgrade
+{% endhighlight %}
+
+Once these have completed, the machine will likely need a restart, but we'll still additionally need to run the command `sudo raspi-config`. This command takes us to a window where we can scroll through settings. We needed to ensure that tha machine was fully up-to-date here or the WiFi network wouldn't connect.
+
+Now, we can create the hotspot. This will share the ethernet connected as a wireless access point.
+
+{% highlight %}
+sudo nmcli con add type wifi ifname wlan0 mode ap con-name accesspoint ssid "SSID" autoconnect true
+#=> Creates a blank WAP with the provided SSID
+
+sudo nmcli con modify accesspoint 802-11-wireless.band bg ipv4.method shared ipv4.address IPv4
+#=> Sets accesspoint to use IPv4
+
+sudo nmcli con modify accesspoint ipv6.method disabled
+#=> Disables IPv6 (RPi 4 seems to struggle with IPv6)
+
+sudo nmcli con modify accesspoint wifi-sec.key-mgmt wpa-psk
+#=> Configures the access point to use a passcode for access
+
+sudo nmcli con modify accesspoint wifi-sec.psk "pass"
+#=> Sets the passcode to the provided string
+
+sudo nmcli con up accesspoint
+#=> Activates the access point
+{% endhighlight %}
+
+Another thing to note about setting the access point up like this is that is automatically starts the access point up when the machine boots. This means nothing else needs to be done on our end when we reboot, shutdown, or move the machine.
+
+# Part 2 : Network Attached Storage
+
+We have a Pi 5 which is set up with a 2Tb NVMe drive attached through the PCIe port. We want to get this configured to function as a NAS so that we can have accessible storage from anywhere on our network easily. Additionally, there are some data processing scripts that we wnat to be running periodically which would be best to run from this machine.
+We opted to configure the NAS using samba. The commands to configure the NAS this way are as follows:
+
+First, we want to set up our shared location and mount the drive. Our mounted location is `/mnt/drv/nvme`.
+
+{% highlight %}
+sudo lsblk
+#=> use this to find the name of the drive we're mounting into the NAS.
+
+cd mnt
+sudo mkdir drv
+sudo mkfs.ext4 /dev/nvme0n1p1
+sudo mount /dev/nvme0n1p1 /mnt/drv/nvme
+sudo chmod -R 777 /mnt/drv/nvme
+#=> use this to mount the drive into the root and set the perms
+{% endhighlight %}
+
+Once the mount is setup, we can install and configure Samba.
+
+{% highlight %}
+sudo apt install samba samba-common-bin
+#=> use this to install the samba application
+
+sudo nano /etc/samba/smb.conf
+#=> now we need to configure the Samba application
+{% endhighlight %}
+
+The config for samba is as follows:
+
+{% highlight %}
+path = "path to install"
+writeable = yes
+create mask = 0775
+directory mask = 0775
+{% endhighlight %}
+
+Once this is done, we need to restart the samba filesystem by running `sudo systemctl restart smbd`
+
+Lastly, we need to grant access to remote into this fileshare. We can do this as follows by creating a user and granting them a Samba password. Both Usernames and Passwords are case-sensitive here.
+
+{% highlight %}
+sudo adduser "username"
+sudo smbpasswd -a "username"
+{% endhighlight %}
+
+Now that everything is configured, we can remotely access the NVMe drive. You can run `hostname -I` to get the hostname of the machine which you will need to UNC path to the machine for access.
