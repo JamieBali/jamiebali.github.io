@@ -14,7 +14,7 @@ We can create an access point using a Raspberry Pi. There are a couple of differ
 
 First, before doing anything, my RPi 4 needed some pre-work completed. This came in the form of some apt updates, and an update to the raspi-config.
 
-{% highlight %}
+{% highlight console %}
 sudo apt update
 sudo apt upgrade
 {% endhighlight %}
@@ -23,7 +23,7 @@ Once these have completed, the machine will likely need a restart, but we'll sti
 
 Now, we can create the hotspot. This will share the ethernet connected as a wireless access point.
 
-{% highlight %}
+{% highlight console %}
 sudo nmcli con add type wifi ifname wlan0 mode ap con-name accesspoint ssid "SSID" autoconnect true
 #=> Creates a blank WAP with the provided SSID
 
@@ -52,7 +52,7 @@ We opted to configure the NAS using samba. The commands to configure the NAS thi
 
 First, we want to set up our shared location and mount the drive. Our mounted location is `/mnt/drv/nvme`.
 
-{% highlight %}
+{% highlight console %}
 sudo lsblk
 #=> use this to find the name of the drive we're mounting into the NAS.
 
@@ -66,7 +66,7 @@ sudo chmod -R 777 /mnt/drv/nvme
 
 Once the mount is setup, we can install and configure Samba.
 
-{% highlight %}
+{% highlight console %}
 sudo apt install samba samba-common-bin
 #=> use this to install the samba application
 
@@ -76,7 +76,7 @@ sudo nano /etc/samba/smb.conf
 
 The config for samba is as follows:
 
-{% highlight %}
+{% highlight console %}
 path = "path to install"
 writeable = yes
 create mask = 0775
@@ -87,7 +87,7 @@ Once this is done, we need to restart the samba filesystem by running `sudo syst
 
 Lastly, we need to grant access to remote into this fileshare. We can do this as follows by creating a user and granting them a Samba password. Both Usernames and Passwords are case-sensitive here.
 
-{% highlight %}
+{% highlight console %}
 sudo adduser "username"
 sudo smbpasswd -a "username"
 {% endhighlight %}
