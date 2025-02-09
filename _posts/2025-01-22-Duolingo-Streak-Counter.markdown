@@ -43,8 +43,6 @@ The other option here was to insert an image of the given flag - obviously this 
 
 To completely negate everything I've just said, I'm sticking a 1000x800 webp file of Duo into the SVN. This reduces the scalability of this image before it becomes pixelated. Creating an SVG of the duolingo owl is a little bit beyond my artistic ability, and I couldn't find a good svg file online, so this file works for now - it's also the exact pose I was envisioning. We can look at converting this to an SVG in a future version of this too.
 
-<img src=https://raw.githubusercontent.com/JamieBali/JamieBali/refs/heads/main/Duolingo-owl-1024x823.webp></img>
-
 With the flag, the streak number, and the image of duo all ready, we can string it all together into a single SVG. Flag on the base layer, image over the top, and the text on top of that. As before, building this with an SVG is easy enough to do and we can quite simply throw together a block which we append into the HTML block for the site.
 
 # Lastly, assembling the site

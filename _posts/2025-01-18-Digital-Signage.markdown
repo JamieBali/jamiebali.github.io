@@ -105,7 +105,7 @@ To mounth the Pi to the TV, I've 3d-printed a small basket which hooks onto the 
 
 So how is this going to work?
 
-Firstly, I've created a flowchard.
+Firstly, I've created a flowchart.
 
 <img src="https://imgur.com/A4NCvtZ.png"></img>
 
