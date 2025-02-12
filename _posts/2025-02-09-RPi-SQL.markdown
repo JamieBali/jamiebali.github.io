@@ -1,0 +1,73 @@
+---
+layout: post
+title:  "Raspberry Pi SQL Server"
+date:   2024-02-09 16:00:00 +0000
+categories: raspberry-pi
+---
+
+One of my recent projects requires a Database that I can use to store and retrieve data. Now I could use Azure or AWS, but Azure requries that I have an Azure subscription to be able to deploy their free databases, and AWX is only free for 6 months. Given that we have the cluster available to use, and that my plans will be purely internal, why not just host our own database here?
+
+# Part 1 : Chosing a Database
+
+I'm a big fan of SQL, so Mongo and Redis are out of the question. Microsoft SQL Server (my beloved) does not have ARM support so I wouldn't be able to run on the Pi Cluster. The mian two options to choise between are MariaDB and PostgreSQL. 
+
+PostgreSQL is known to perform better with large amounts of read/write operations and particularly with complex queries, but given that my DB probably won't end up being huge and will only be used by one or two people this probably isn't a huge requirement.
+
+MariaDB is considered a "lighter" DB, meaning that it'll use less memory and CPU so would probably be better in the particularly low power machines I'm running.
+
+For these reasons, I have opted to use Maria DB for my Raspberry Pi SQL Server.
+
+# Part 2 : Installing Docker and Creating a MariaDB Container
+
+{% highlight console %}
+curl -sSL https://get.docker.com | sh
+{% endhighlight %}
+
+We also need to then add our non-sudo user to the docker group by running `sudo usermod -aG docker $USER`
+
+We're going to stick our mariadb idonwload into `/opt/stacks/mariadb`
+
+{% highlight console %}
+sudo mkdir -p /opt/stacks/mariadb
+{% endhighlight %}
+
+Then we need to write the docker compose
+
+{% highlight yaml %}
+services:
+  db:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: 
+      MYSQL_DATABASE: 
+      MYSQL_USER: 
+      MYSQL_PASSWORD: 
+    volumes:
+      - ./data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+{% endhighlight %}
+
+Now we should be able to just start the container using docker compose
+
+{% highlight console %}
+docker compose up -d
+[+] Running 9/9
+ ✔ db Pulled
+   ✔ 5b17151e9710 Pull complete
+   ✔ f3ab783a6a14 Pull complete
+   ✔ 5c334a5d1f6a Pull complete
+   ✔ 0626685d68c7 Pull complete
+   ✔ 0f32ddb4a991 Pull complete
+   ✔ d836d3624058 Pull complete
+   ✔ 0ab43e8e60e3 Pull complete
+   ✔ 1d56ae0de764 Pull complete
+[+] Running 2/2
+ ✔ Network mariadb_default  Created
+ ✔ Container mariadb-db-1   Started
+ {% endhighlight %}
+
+# Part 3 : Setting the DB to automatically start up
+
+
+
