@@ -36,6 +36,7 @@ Then we need to write the docker compose
 {% highlight yaml %}
 services:
   db:
+    restart: always
     image: mariadb:latest
     environment:
       MYSQL_ROOT_PASSWORD: 
@@ -66,8 +67,5 @@ docker compose up -d
  ✔ Network mariadb_default  Created
  ✔ Container mariadb-db-1   Started
  {% endhighlight %}
-
-# Part 3 : Setting the DB to automatically start up
-
 
 
