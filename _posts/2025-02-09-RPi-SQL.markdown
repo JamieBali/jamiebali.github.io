@@ -25,7 +25,7 @@ curl -sSL https://get.docker.com | sh
 
 We also need to then add our non-sudo user to the docker group by running `sudo usermod -aG docker $USER`
 
-We're going to stick our mariadb idonwload into `/opt/stacks/mariadb`
+We're going to stick our mariadb download into `/opt/stacks/mariadb`
 
 {% highlight console %}
 sudo mkdir -p /opt/stacks/mariadb
