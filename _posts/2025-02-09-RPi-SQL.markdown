@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Raspberry Pi SQL Server"
-date:   2024-02-09 16:00:00 +0000
+date:   2025-02-09 16:00:00 +0000
 categories: raspberry-pi
 ---
 
@@ -17,21 +17,31 @@ MariaDB is considered a "lighter" DB, meaning that it'll use less memory and CPU
 
 For these reasons, I have opted to use Maria DB for my Raspberry Pi SQL Server.
 
-# Part 2 : Installing Docker and Creating a MariaDB Container
+# Part 2 : Installing Docker
+
+Of the possible methods of installing MariaDB, I've oped to install it onto a Docker Container. This is a new node in the Pi Cluster, so I'll need to get docker installed to start with.
 
 {% highlight console %}
 curl -sSL https://get.docker.com | sh
 {% endhighlight %}
 
-We also need to then add our non-sudo user to the docker group by running `sudo usermod -aG docker $USER`
+This command above will simply run the shell command from get.docker.com which helpfully downloads and installs docker onto your machine automatically.
 
-We're going to stick our mariadb download into `/opt/stacks/mariadb`
+With docker installed, we also need to add our non-sudo user to the docker group by running `sudo usermod -aG docker $USER` where $USER is replaced with the user's name.
+
+# Part 3 : Installing MariaDB
+
+Installing MariaDB is also fairly simple, though there a few more steps than there are to install Docker. First, we need to select a location for our DB install. The suggested location from the MariaDB documentation is `/opt/stacks/mariadb` so this is where I've opted to install it.
+
+I first created the directory `opt/stacks/mariadb` by running the block below.
 
 {% highlight console %}
 sudo mkdir -p /opt/stacks/mariadb
 {% endhighlight %}
 
-Then we need to write the docker compose
+Then within this location, I have created a Docker Compose file named `compose.yaml`. A compose file allows us to provide a selection of details about a service, such as restart behaviour, environment variables, network and storage info, and most importantly a container image. All this config will allow us to start, stop, and manage the MariaDB Service a lot easier as we won't have to be manually providing this info again every reboot.
+
+The contents of the yaml file is shown below. Obviously the environment fields in this snapshot are very insecure, but this gives you an example of what this data should look like.
 
 {% highlight yaml %}
 services:
@@ -39,17 +49,17 @@ services:
     restart: always
     image: mariadb:latest
     environment:
-      MYSQL_ROOT_PASSWORD: 
-      MYSQL_DATABASE: 
-      MYSQL_USER: 
-      MYSQL_PASSWORD: 
+      MYSQL_ROOT_PASSWORD: Password123
+      MYSQL_DATABASE: DBName
+      MYSQL_USER: DBUser
+      MYSQL_PASSWORD: DBPassword
     volumes:
       - ./data:/var/lib/mysql
     ports:
       - "3306:3306"
 {% endhighlight %}
 
-Now we should be able to just start the container using docker compose
+Now that we have a complete docker file, we should be able to just start the container using a quick docker compose line. First we have to `cd` to our MariaDB location, then we just run `docker compose up -d` which will start our container and download the required image(s).
 
 {% highlight console %}
 docker compose up -d
@@ -65,7 +75,12 @@ docker compose up -d
    ✔ 1d56ae0de764 Pull complete
 [+] Running 2/2
  ✔ Network mariadb_default  Created
- ✔ Container mariadb-db-1   Started
+ ✔ Container mariadb-db   Started
  {% endhighlight %}
 
+# Part 4 : Using Your Database
+
+Now that this has run successuflly, our DB is up and running and available. Using an SQL Editor like SQL Workbench, we can then remote into this Database and perform any edits we want, such as our standard SQL commands, creating or deleteing DBs from our Server, or whatever your heart desires.
+
+An additional thing to note here is that the `restart: always` line on our Docker Compose file means that this DB will automatically start back up in the case that our machine reboots. While Linux machines are usually more durable than Windows machines, I still think it's a good idea to have a scheduled reboot on a Linux machine (especailly something like a Pi). I've set up a weekly reboot on this machine at 4am on Monday Mornings. You can find out how to do this in <a href="https://jamiebali.github.io/raspberry-pi/2025/01/18/Digital-Signage.html">Part 2.3 of this Blog Post where I documented a process for Homebew Digital Signage.</a>
 
