@@ -11,17 +11,17 @@ I like neural networks. I think they are incredibly powerful and, while they hav
 
 This is quite a broad question - obviously the answer can differ greatly depending on what the flag is. Something like Japan doesn't need explaining - it's obvious that a red dot on a white background is going to be Japan, even when shrunk all the way down to 3x3 pixels. The same probably goes fro a country like Albania.
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/3/36/Flag_of_Albania.svg">
+<img position="center" height="200px" src="https://upload.wikimedia.org/wikipedia/commons/3/36/Flag_of_Albania.svg">
 
-<img src="https://imgur.com/nEGqrBI.png">
+<img position="center" height="200px" src="https://imgur.com/nEGqrBI.png">
 
 This image here is obviously really small and distorted, but Albania has quite a recognisable flag and it's quite unique, so you can identify that this is albania.
 
 Sticking to Europe, issues quickly arise with countries like Slovakia and Slovenia which have very similar flags - the difference be only in the crest on the left-hand side.
 
-<img height="200px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Flag_of_Slovakia.svg/1200px-Flag_of_Slovakia.svg.png"> 
+<img position="center" height="200px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Flag_of_Slovakia.svg/1200px-Flag_of_Slovakia.svg.png"> 
 
-<img height="200px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Flag_of_Slovenia.svg/1200px-Flag_of_Slovenia.svg.png"> 
+<img position="center" height="200px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Flag_of_Slovenia.svg/1200px-Flag_of_Slovenia.svg.png"> 
 
 For a look at these high res SVG files, you can clearly see a difference, but when compressed down these will become harder and harder to distinguish.
 
@@ -57,7 +57,7 @@ for pixel in flattened_flag:
 
 The `flattened_flag` variable here is a 1-dimensional representation of the flag we're processing. Even though this does make the flag less human readable, it's fine to keep as long as we're consisten and the AI should be able ot process it fine.
 
-<img height="200px" src="https://imgur.com/4S91Mjt.png">
+<img position="center" height="200px" src="https://imgur.com/4S91Mjt.png">
 
 ## 2. Training
 
