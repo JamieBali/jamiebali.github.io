@@ -51,7 +51,7 @@ The layer sizes in this diagram are inaccurate, but the structure here is correc
 
 To get a flag ready for the AI, I have opted to use a 3-dimensional binary array. The x and y axis represent the coordinate on the pixel grid, and a third z-axis is used to represent teh colour of that pixel. In an array in the Z-axis, all items will equal - except the correct colour (where the 0th item means white, 1st means black, 3rd means red, etc..). I'll be limiting the amount of colours down to Black, White, Red, Green, Blue, Yellow, Orange, and a second lighter shade of blue. These list of colours should be sufficient to draw all the flags of europe (which is what we're starting with for now).
 
-`<insert diagram here of 3d array representation>`
+<img height="200px" src="https://imgur.com/a/vkHKoiU.png">
 
 We can automatically create flag representations for all our testing and training data with a for loop and case statement.
 
@@ -128,8 +128,4 @@ To begin with I ran through a test, getting the model to predict the flag for al
 
 The testing of this network resulted in a final accuracy of 42/49 or around 85%. I suspect that the main issue causing problems here is overfitting of data. As you can see in the training output, after epoch 7, the performance increases by much smaller amounts each epoch, so it's possible that after this point it is just overfitting to some of the example data. This explains why small differences, such as the shade of blue different people used in flags like Greece and Ukraine, cause these flags to fail to get recognised.
 
-In order to optimise the performance of this network, I attempted running at some different epoch sizes. This graph below shows the calculated performance at these different epochs, peaking at a 46/49 or ~94% accuracy at 8 epochs.
-
-`<insert graph here of performance vs epochs>`
-
-
+In order to optimise the performance of this network, I attempted running at some different epoch sizes. I managed to find the best performance at 8 epochs, where I had 45/49 test flags run correctly, or around 92% accuracy.
