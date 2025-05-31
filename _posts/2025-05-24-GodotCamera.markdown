@@ -29,7 +29,7 @@ The plan for my system is a series of raycasts within the camera's field-of-view
 
 
 
-<img src="https://imgur.com/vX0QSzf" height="200px">
+<img src="https://imgur.com/vX0QSzf.png" height="200px">
 
 {% highlight python %}
 { "Ground": 458, "sky": 728, "Cobblestones": 78, "Hedge": 133, "Bench": 56, "TrashCan": 21, "Streetlamp": 26 }
