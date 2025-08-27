@@ -187,7 +187,7 @@ Good prompt engineering requires effective choice of context, examples, and cons
 
 Constraints are going to be the easiest part of my model. My output needs to be very rigid, so my constraints can be very explicit.
 
-{% highlight %}
+{% highlight console %}
 Could you classify this as a 'good' or a 'bad' comment?
 Please answer as a single 'yes' or 'no', followed by a 1 sentence long justification of why you think it is good or bad.
 {% endhighlight %}
@@ -202,7 +202,7 @@ Providing context is the next most important step in a meaningful and effective 
 
 As I've described above, identifying a comment as good or bad is fairly subjective, but it's not arbitrary - there is an amount of human review where we can identify if a comment is obviously terrible, and we also have a list of requirements for internal and external comments. 
 
-{% highlight %}
+{% highlight console %}
 We categorise an internal comment as 'good' if it meets the following requirements:
 . you have provided specifics of which commands you have run, where you've run them, and what the output is
 . You have included snippets of any relevant logs and filepaths to them
@@ -216,7 +216,7 @@ When executing the prompt with this context, the LLM was able to return 41 out o
 
 I attempted to extend the prompt to include more context, specifying that each of these requirements was on a 'where applicable' basis, and including the line:
 
-{% highlight %}
+{% highlight console %}
 When analysing internal comments, the primary goal is to provide useful and quality communications to other members of the internal team, and make it easier to review work done in the future when it comes to writing guides.
 {% endhighlight %}
 
@@ -224,7 +224,7 @@ With this extension, results increased to 56 / 300 randomly sampled tickets.
 
 After making further changes with an attempt to reduce the focus on each of the requirements and work on a broader and more general level, I eventually opted to remove the bullet points in place of an explanation of what the function of an internal support team is and why you would provide internal or external comments.
 
-{% highlight %}
+{% highlight console %}
 An internal comment is one which is only visible to other members within the support team. These users are also support analysts and engineers, so they will have a deeper technical knowledge than external users.
 
 Internal comments are designed to keep other members of internal support up to date with what is happening on a ticket and include details that external users may not understand or care about.
@@ -236,25 +236,25 @@ This change allower the tickets to be categorised correctly just over 50% of the
 
 To increase the accuracy of the system further, I started to include some specific examples in my prompt. Some specific issues that came up in my testing included comments from the LLM such as:
 
-{% highlight %}
+{% highlight console %}
 While the comment details actions taken, it's poorly formatted and includes a broken/messy URL within the text, hindering readability and making it difficult to quickly understand the key information for other support team members.
 {% endhighlight %}
 
 This seemed to happen quite often, where certain comments were getting flagged as bad due to the way the urls, tables, and images get formatted when pulling the HTML comment directly from the database. To resolve this issue, I've added a line to specify these exact example and ask the AI to disregard this in its analysis of the tickets.
 
-{% highlight %}
+{% highlight console %}
 Note that this comment is parsed from an HTML output so may contain odd formatting, HTML tags, etc... Some URLs may also become malformed. Please disregard these artifacts in your analysis.
 {% endhighlight %}
 
 Some other specific examples that seemed to flag quite often were cases where an External Comment contains quite more technical information - this is because cases like ticket escalation (to other users as well as to other teams and disciplines) appears as an External comment. These specific cases will need to include more technical detail so that the higher level of support team or other internal teams will be able to understand the complexities of what has been performed. I have included some examples of these cases in the prompt so that the LLM can attempt to avoid them.
 
-{% highlight %}
+{% highlight console %}
 Sometimes internal communication is posted as an External comment, this includes Triages (i.e. queueing of tickets), escalations (i.e. <comment snippet redacted>), moving tickets to other disciplines (i.e. <comment snippet redacted>) and assignments (i.e. <comment snippet redacted>). In these cases, a ticket may contain more technical detail, but would still be marked as a good external ticket.
 {% endhighlight %}
 
 Even after this, the LLM was flagging a lot of tickets as 'bad' due to minor gramatical issues. Some small mistakes like using the wrong there / their, or use of incorrect conjugations were flagging as bad tickets despite the content being very good. A large amount of these issues are due to the Polish members of our support team who speak English as a second language. I've included an additional line in the prompt to indicate that part of our support team does not speak english as a first language so some level of lenience is needed when it comes to reviewing the specific grammar.
 
-{% highlight %}
+{% highlight console %}
 Some members of our support team speak English as a second language, so some amount of grammar and spelling mistakes should be forgiven, though large mistakes which may confuse readers should still be flagged.
 {% endhighlight %}
 
@@ -265,7 +265,7 @@ The Bayesian classifier was able to identify ticket comments as good or bad with
 While this number is definitely lower, the system has some advantages. Firstly, while the accuracy as a whole is lower, the LLM has extremely good precision, with only 2 of the tickets flagged as 'good' being false positives. This means that using this system to provide scores may provide more of an incentive to write good comments without re-inforcing negative behaviours.
 Secondly, the LLM provides a sentence long summary explaining why it has given that specific status. This means that when returning the stats to users, they are able to understand why they have received the stats they have. Tickets are given explanations such as : 
 
-{% highlight %}
+{% highlight console %}
 This is a good comment because it directly provides a link to relevant documentation that will help other support team members quickly access helpful information.
 
 The comment consists solely of an image reference and provides no textual information about the issue, steps taken, or diagnosis, making it unhelpful for internal team communication and future guide creation.
