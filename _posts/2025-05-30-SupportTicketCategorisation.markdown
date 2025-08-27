@@ -171,20 +171,128 @@ A big reason I'm making my own system is due to data sensitivity and security - 
 
 I've previously gotten Ollama installed locally and running the 12b parameter model of Gemma, so my plan is to set this up as a service so that I can use a script to ping it with comments and get an analysis back.
 
-## Step 1 : Ollama 12b Parameter Model Requirements
+## Step 1 : Hosting an Ollama Instance
 
-Installing Ollama is easy enough, but I've chosen the 12b parameter model for a reason - it's the most powerful model my machine can run without breaking. The 12b parameter model requires around 8Gb of RAM to run which is the main limiting resource for my machine. While I'd love to use the 27b parameter model, I'm afraid that my machine just won't handle it - obviously this is a great option for future development.
+Since I began this experiment, I have had an project to set up an in-house Ollama instance which is capable of running larger models. While I originially intended to run this on my homelab as a test with the potential of requesting some moderate hardware to run this on our work infrastructure, I now have the capacity to run this on our newly installed Gemma 3 27b parameter model.
 
+The instance is hosted on its own Virtual Machine with Ollama running as a service from NSSM. Due to the nature of our infrastructure, I can not share information about the specific configuration of our instance.
 
+## Step 2 : Prompt Engineering
 
+While writing a Bayesian classifier allowed me to change various parameters, the LLM I'm using doesn't grant me as much freedom in this area without fine-tuning the model. Instead the specific adjustments to improve performance comes with proper prompt engineering.
 
+Good prompt engineering requires effective choice of context, examples, and constraints so that the LLM can provide you a response which fits what you're expecting with a good degree of accuracy.
 
+### Constraints
 
+Constraints are going to be the easiest part of my model. My output needs to be very rigid, so my constraints can be very explicit.
 
-
-<img src="https://imgur.com/vX0QSzf" height="200px">
-
-{% highlight python %}
-{ "Ground": 458, "sky": 728, "Cobblestones": 78, "Hedge": 133, "Bench": 56, "TrashCan": 21, "Streetlamp": 26 }
-   At: res://characterHandlers/playerCameraHandler.gd:29:get_objects()
+{% highlight %}
+Could you classify this as a 'good' or a 'bad' comment?
+Please answer as a single 'yes' or 'no', followed by a 1 sentence long justification of why you think it is good or bad.
 {% endhighlight %}
+
+This prompt allows the LLM to provide an output correctly in 100% of my tests. With the text in this format, it makes it very easy for me to parse the result into a boolean based on whether the prompt starts with 'yes' or 'no' and then split out the justification to include in an output.
+
+Though without any context provided, these results were meaningless.
+
+### Context
+
+Providing context is the next most important step in a meaningful and effective prompt. With just a comment and a question of 'is this good?' the LLM has no indication of what makes a good or bad comment.
+
+As I've described above, identifying a comment as good or bad is fairly subjective, but it's not arbitrary - there is an amount of human review where we can identify if a comment is obviously terrible, and we also have a list of requirements for internal and external comments. 
+
+{% highlight %}
+We categorise an internal comment as 'good' if it meets the following requirements:
+. you have provided specifics of which commands you have run, where you've run them, and what the output is
+. You have included snippets of any relevant logs and filepaths to them
+. You have included error codes and steps on how to reproduce them
+. You have provided a conclusion, opinion, or next action based on your findings.
+{% endhighlight %}
+
+There is an equivalent list of requirements for external comments which we can provide in a separate prompt. Then, when processing through comments to determine if they are 'good' or 'bad' we can ensure that we are sent to the LLM with the correct prompt based on their visibility.
+
+When executing the prompt with this context, the LLM was able to return 41 out of 300 test comments with the correct status, suggesting that this is not sufficient context. Reviewing the results, I noticed that the LLM was frequently returning comments as bad when we had reviewed them as good. This was typically because it was expecting details of commands, snippets of logs, and error codes all together. 
+
+I attempted to extend the prompt to include more context, specifying that each of these requirements was on a 'where applicable' basis, and including the line:
+
+{% highlight %}
+When analysing internal comments, the primary goal is to provide useful and quality communications to other members of the internal team, and make it easier to review work done in the future when it comes to writing guides.
+{% endhighlight %}
+
+With this extension, results increased to 56 / 300 randomly sampled tickets.
+
+After making further changes with an attempt to reduce the focus on each of the requirements and work on a broader and more general level, I eventually opted to remove the bullet points in place of an explanation of what the function of an internal support team is and why you would provide internal or external comments.
+
+{% highlight %}
+An internal comment is one which is only visible to other members within the support team. These users are also support analysts and engineers, so they will have a deeper technical knowledge than external users.
+
+Internal comments are designed to keep other members of internal support up to date with what is happening on a ticket and include details that external users may not understand or care about.
+{% endhighlight %}
+
+This change allower the tickets to be categorised correctly just over 50% of the time (159/300 tickets categorised correctly).
+
+### Examples
+
+To increase the accuracy of the system further, I started to include some specific examples in my prompt. Some specific issues that came up in my testing included comments from the LLM such as:
+
+{% highlight %}
+While the comment details actions taken, it's poorly formatted and includes a broken/messy URL within the text, hindering readability and making it difficult to quickly understand the key information for other support team members.
+{% endhighlight %}
+
+This seemed to happen quite often, where certain comments were getting flagged as bad due to the way the urls, tables, and images get formatted when pulling the HTML comment directly from the database. To resolve this issue, I've added a line to specify these exact example and ask the AI to disregard this in its analysis of the tickets.
+
+{% highlight %}
+Note that this comment is parsed from an HTML output so may contain odd formatting, HTML tags, etc... Some URLs may also become malformed. Please disregard these artifacts in your analysis.
+{% endhighlight %}
+
+Some other specific examples that seemed to flag quite often were cases where an External Comment contains quite more technical information - this is because cases like ticket escalation (to other users as well as to other teams and disciplines) appears as an External comment. These specific cases will need to include more technical detail so that the higher level of support team or other internal teams will be able to understand the complexities of what has been performed. I have included some examples of these cases in the prompt so that the LLM can attempt to avoid them.
+
+{% highlight %}
+Sometimes internal communication is posted as an External comment, this includes Triages (i.e. queueing of tickets), escalations (i.e. <comment snippet redacted>), moving tickets to other disciplines (i.e. <comment snippet redacted>) and assignments (i.e. <comment snippet redacted>). In these cases, a ticket may contain more technical detail, but would still be marked as a good external ticket.
+{% endhighlight %}
+
+Even after this, the LLM was flagging a lot of tickets as 'bad' due to minor gramatical issues. Some small mistakes like using the wrong there / their, or use of incorrect conjugations were flagging as bad tickets despite the content being very good. A large amount of these issues are due to the Polish members of our support team who speak English as a second language. I've included an additional line in the prompt to indicate that part of our support team does not speak english as a first language so some level of lenience is needed when it comes to reviewing the specific grammar.
+
+{% highlight %}
+Some members of our support team speak English as a second language, so some amount of grammar and spelling mistakes should be forgiven, though large mistakes which may confuse readers should still be flagged.
+{% endhighlight %}
+
+## Analysis
+
+The Bayesian classifier was able to identify ticket comments as good or bad with a 72% accuracy. With an LLM I am only able to achieve a 66% accuracy at classifying ticket comments. 
+
+While this number is definitely lower, the system has some advantages. Firstly, while the accuracy as a whole is lower, the LLM has extremely good precision, with only 2 of the tickets flagged as 'good' being false positives. This means that using this system to provide scores may provide more of an incentive to write good comments without re-inforcing negative behaviours.
+Secondly, the LLM provides a sentence long summary explaining why it has given that specific status. This means that when returning the stats to users, they are able to understand why they have received the stats they have. Tickets are given explanations such as : 
+
+{% highlight %}
+This is a good comment because it directly provides a link to relevant documentation that will help other support team members quickly access helpful information.
+
+The comment consists solely of an image reference and provides no textual information about the issue, steps taken, or diagnosis, making it unhelpful for internal team communication and future guide creation.
+{% endhighlight %}
+
+Since I am not a trained prompt engineer, I'm sure there are significant improvements which could be made to the prompts I have written.
+
+# Conclusion
+
+Between these two systems, the LLM has a slightly worse accuracy, but overall I still think it is a better approach between the two options. It is able to provide a justification of why a specific status was given and is able to adapt to phrasings better. The LLM can more easily generalise, rather than relying on the use of specific keywords like the Bayesian classifier does.
+
+Additionally, the higher precision of the LLM system means that it will enforce good behaviours without incorrectly marking bad behaviours as good.
+
+The remaining comments which flag incorrectly in the LLM model are primarily due to comments such as escalations, de-escalations, and assignments containing a larger amount of technical inforamtion which the LLM thinks is inappropriate for a customer-facing comment - even if that comment is not directly targetted at a customer. It may be possible to work around this, but my speciffic prompts have not been able to work around this.
+
+## Garbage In; Garbage Out
+
+The most important principle of AI training is that bad input data means bad output data. This principle likes plays into the performance of the Bayesian classifier, but less so when it comes to the ticket comments.
+
+I still think this principle may affect my testing results for the LLM system. For example, an external comment containing just a table of items and costs wit a message saying "can you please accept the costs. Thank you." is marked in my testing data as a 'good' comment. The LLM flags this as bad saying it lacks context and info about what this is supposed to represent, or how the assignee is supposed to interperet the table. I would agree with the LLM in saying that this is a 'bad' comment.
+
+As such, I think the accuracy of both of these systems may be misrepresented when tested.
+
+## Formatting Issues
+
+The other issue which I think will have impacted both of these systems is bad formatting. The comments extracted from the Jira Database include HTML formatting tags on tables, URLS, and visual formatting for bold, itallic, and pre-foramtted blocks. These tags interfere with both systems.
+
+The inclusion of a table HTML tag, for example may be identified as a 'good' characteristic in the Bayesian classifier. This means that even bad comments might get flagged as good because they contain tables, even if those tables are meaningless or contain useless information and no context.
+
+This formatting seems to confuse the LLM quite often too, identifying fairly simple tables as complex technical data due to the HTML tags, spacings, and such. This makes it flag potentially good comments as bad due to what it percieves is technical info.
