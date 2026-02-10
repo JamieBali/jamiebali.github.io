@@ -1,0 +1,177 @@
+---
+layout: post
+title:  "Colordle makes my collegues very sad"
+date:   2026-09-02 19:00:00 +0000
+categories: Javascript
+---
+
+Let me introduce you to a game called <a href="https://colordle.ryantanen.com/">Colordle</a>. Colordle is a simple game where you have to guess the name of a colour. The only clue you get is a percentage score of how close you were with your last guess (where 100% means you're spot on, and 0% means you're completely off).
+
+This game is very painful and I hate playing it, but I still play it every day. Then I got my collegues playing it and they hate it just as much. They hate it so much that we now have a dedicated channel just for sharing our daily scores.
+
+The worst part about Colordle is that if we get stuck, we really do spend hours trying (like 450+ guesses including "Waiporoporo Purple"). You may think "just google it?" but that ruins the fun, and it's really tough to get a hint without Google AI mode just telling you the answer first.
+
+# That's where I come in.
+
+I always start my colordle with a classic Red, then Green, then Blue if green still isn't very close. Here's the plan: We have scores for #ff0000, #00ff00, and #0000ff - so using this knowledge, we should be able to triangulate the answer, right?
+
+## I wish it were that easy
+
+Colordle, in it's beauty and wisdom, uses RGB values to identify and list colours, but instead uses CIEDE2000 (Delta E 00) distances to determine colour difference. This took me down a rabbit hole of discovering there's an entire field of study for identifying differences in colours ???
+
+Either way, javascript has some nice easy functions to determine these percentages between two colours, so we can quickly convert from RGB to LAB. Using this I can determine that my starting guess of Red for today's colordle had a difference of 59.28%. Note that this percentage is actually inverted - Detla E 00 is a measure of difference, so two identical numbers would normally be 0%, but the game looks for similarity.
+
+{% highlight javascript %}
+    "Match Test:", "59.28%"
+{% endhighlight %}
+
+## RBG to LAB and vice versa
+
+Luckily, the LAB space is just as easy to work in as the RGB space (i think), so we just need to convert our RGB hex codes into LAB coordinates. This can be done using a bunch of maths that I don't fully understand. Luckily the internet exists and I can just pull the logic.
+
+{% highlight javascript %}
+    function RGB2LAB({ r, g, b }) { ... }
+
+    function LAB2RGB({ L, a, b }) { ... }
+{% endhighlight %}
+
+A useful thing that will help us out later is also a text to rgb object function
+
+{% highlight javascript %}
+    if (rgbstring[0] == "#"){
+        rgbstring = rgbstring.substring(1);
+    }
+
+    rgbstringsplit = rgbstring.match(/.{2}/g)
+
+    let r = parseInt(rgbstringsplit[0], 16);
+    let g = parseInt(rgbstringsplit[1], 16);
+    let b = parseInt(rgbstringsplit[2], 16);
+{% endhighlight %}
+
+Now, using this function, we can send a hex code to be converted into LAB, and using an equivalent function we can convert a LAB back into a hex code.
+
+## Okay, so triangulation?
+
+Okay, so here's the news - trilateration won't work here. The reason is that Delta E 00 doesn't use euclidian distances for calculation. Instead, there's a component that penalises lightness, and compresses distances for highly saturated colours. The priority for Delta E 00 isn't actual colour difference, it's visible colour difference that a human would actually be able to see (more blue cones in the eyes, etc...) I'm not a colour theorist.
+
+## The best algorithm is always brute force
+
+No it's not, but hey i've only got to test 256^3 items so it's probably the easiest solution.
+
+{% highlight javascript %}
+for (let testing_r = 0; testing_r < 256; testing_r++) {
+  for (let testing_g = 0; testing_g < 256; testing_g++) {
+    for (let testing_b = 0; testing_b < 256; testing_b++) {
+      let testing_rgb = { r: testing_r, g: testing_g, b: testing_b};
+      let testing_lab = RGB2LAB(testing_rgb);
+
+      testdiff_red = deltaE00(testing_lab, red_lab);
+      ...
+
+      total_diff = Math.abs(testdiff_red - red_diff) 
+                 +  Math.abs(testdiff_green - green_diff) 
+                 +  Math.abs(testdiff_blue - blue_diff);
+
+      if (total_diff < best_diff){
+        best_diff = total_diff;
+        best_hex = testing_rgb;
+      }
+    }
+  }
+}
+{% endhighlight %}
+
+On top of this, we can add an additional function that breaks out of the loop and returns a value if the "total_diff" ends up being exactly 0. By running this, we get (for colordle 1418 today) the following values:
+
+{% highlight javascript %}
+reported diff: 0.0700000000000145
+{
+  b: 6,
+  g: 36,
+  r: 160
+}
+{% endhighlight %}
+
+That converts to #a02406. Our actual answer was #9f2305 which is... basically spot on. We're off by 1 point in each of the hex values. The Delta E 00 difference between these two colours is 0.27, meaning they are indistinguishable to the human eye.
+
+Thank you, Occam.
+
+### No no wait, I can do better.
+
+Since the original intent was to use the RGB space and do euclidean distances (which fyi is what Colordle at one point used - the block is now commented out on line 173 of the app.js), I was using Red, Green, and Blue as my starting colours. Since we're actually using the LAB colour space, there might be a better list of colours to start with.
+
+The L in LAB stands for Lightness, the A stands for "the red/green chromacity", and the B stands for "the yellow/blue chromacity" (okay maybe it's not an acronym). Either way, a better colour choice may allow us to fix that 1/256th inaccuracy.
+
+For RGB, our colours were the peak for each of the 3 values, with 0 in the other two, so our LAB colour choice should follow a similar pattern.
+
+{% highlight javascript %}
+lab(100, 0 0) : #ffffff -> Colordle : White
+lab(0, 127, 0) : #77000a -> Colordle : Blood Brother
+lab(0, 0, 127) : #3b0000 -> Colordle : Dark Maroon
+{% endhighlight %}
+
+Okay, I'll remind you once again that I don't know what LAB is and I only started learning colour theory about 45 minutes ago. These colours don't look like a great range - also because Colordle is limited to actual colours and not hex codes, I've had to adapt a bit. Blood Brother is slightly off as #770011, and Dark Maroon is actually #3c0008 because it's the closes I could get. Either way, they should act as our mid-way points quite nicely.
+
+Giving this a run, despite my doubts, gives us a returned hex code of `{r: 159,g: 35, b: 5}` which is... spot on. The algorithm actually cut out early because it had identified a perfect match (or this is javascript so technically our difference was 1.065e-14, but that's a different rant entirely).
+
+### You know, for some reason I hate that.
+
+It feels like potentially this is being sort of biased because the answer was a shade of red, and two of the 3 test values are shades of red. To compensate for that I have yet another list of LAB codes I've pulled out of nowhere that might be worth trying.
+
+{% highlight javascript %}
+lab(0, -128, -128) : #0040c2 -> Colordle : Once in a Blue Moon (#0044bb - E00: 1.75)
+lab(50, 0, 0) : #777777 -> Colordle : Lucky Grey
+lab(100, 127, 127) : #ff4600 -> Colordle : Red Dit (#ff4500 - E00: 0.18)
+{% endhighlight %}
+
+Using this set of 3 colours, we obtain the hex code `{r: 159, g: 35, b: 5}` which is, once again, perfect. Now I prefer this list of colours for no scientific reason, but I imagine the variance in colours may be beneficial here.
+
+# Okay, the question you've all been BEGGING to ask.
+
+Why did I write this in Javascript?
+
+The answer is simple - bookmarklets. By inserting a bunch of javascript into a bookmark, you can run javascript commands directly against a page you're on.
+
+{% highlight javascript %}
+javascript:(function(){YOUR FUNCTION(s) GO HERE!!!})();
+{% endhighlight %}
+
+The idea here is that I can now make a bookmarklet that does the following: finds my guesses for Red Green and Blue (or Once in a Blue Moon, Lucky Grey, and Red Dit) and then uses those values to predict the hex code I need to insert.
+
+Using the following function we can extract the percentage scores of our initial three guesses
+
+{% highlight javascript %}
+function getPercentage(rgb_object) {
+    const candidates = document.querySelectorAll('.selected-color-contianer');
+
+    const targetDiv = Array.from(candidates).find(div => {
+        const bg = div.style.backgroundColor || getComputedStyle(div).backgroundColor;
+        return bg === rgb_object;
+    });
+
+    if (!targetDiv) {
+        console.error("No box found with that colour.");
+        return null;
+    }
+
+    const h1 = targetDiv.querySelector('h1');
+    if (!h1) return null;
+
+    let split = h1.innerText.split("-")
+
+    return split[split.length - 1].split("%")[0].trim();
+}
+{% endhighlight %}
+
+And once we're done we can drop the HEX code into the search bar. Combined all together, and after a small amount of debugging, there is now officially a bookmarklet that automatically solves Colordle for you (assuming you've done Once in a Blue Moon, Lucky Grey, and Red Dit as your starting guesses).
+
+Thank you, Thank you, save your applause.
+
+# What about AI?
+
+Hill  Climbing is an iterative optimisation technique where we attempt to find a maxima on a plane. In normal person talk, we keep trying combinations until we get the best one. In our case, we're trying to optimise 3 different values - the difference scores from the initial red, green, and blue guesses.
+
+We can do this by first picking a central colour (something like #808080 or rgb(128,128,128)) and then progressively make changes to the values until we find an exact match. Alternatively, to reduce processing requirement (in continually converting RGB into LAB), we can perform the optimisation for the LAB values directly, and then convert back to RGB at the end.
+
+This is probably what I would have done had a brute force approach not found me the correct answer instantly - that being said, I can only really test this once per day so unless it turns out this just doesn't work on tomorrow's Colordle then I guess we have another option to try.
