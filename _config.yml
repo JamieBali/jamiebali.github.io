@@ -21,7 +21,7 @@
 title: Jamie Bali
 email: jamiebali1722@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  A simple blog i liekly won't update very frequently.
+  A simple blog i likely won't update very frequently.
   More a place for me to stort random code and projects I do.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
